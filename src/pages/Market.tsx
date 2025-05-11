@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AssetChart } from "@/components/AssetChart";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,14 +7,15 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useMarket } from "@/contexts/MarketContext";
 import { Asset, AssetType } from "@/types";
+import { Search, Loader2 } from "lucide-react";
+import { MarketNews } from "@/components/MarketNews";
 
 const Market = () => {
-  const { assets } = useMarket();
+  const { assets, isLoading, fetchAssets } = useMarket();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<AssetType | "all">("all");
-  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(
-    assets.length > 0 ? assets[0] : null
-  );
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const assetTypes: { value: AssetType | "all"; label: string }[] = [
     { value: "all", label: "Todos" },
@@ -32,9 +33,45 @@ const Market = () => {
         asset.name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  // Set the first filtered asset as selected when assets load or filter changes
+  useEffect(() => {
+    if (filteredAssets.length > 0 && !selectedAsset) {
+      setSelectedAsset(filteredAssets[0]);
+    } else if (filteredAssets.length > 0 && selectedAsset) {
+      // Check if the selected asset is still in the filtered list
+      const isStillVisible = filteredAssets.some(asset => asset.id === selectedAsset.id);
+      if (!isStillVisible) {
+        setSelectedAsset(filteredAssets[0]);
+      }
+    } else if (filteredAssets.length === 0) {
+      setSelectedAsset(null);
+    }
+  }, [filteredAssets, selectedAsset]);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchAssets();
+    setRefreshing(false);
+  };
+
   return (
     <div className="space-y-6 p-6">
-      <h1 className="text-3xl font-bold">Mercado</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Mercado</h1>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={handleRefresh}
+          disabled={refreshing || isLoading}
+        >
+          {refreshing || isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Atualizando...
+            </>
+          ) : "Atualizar Dados"}
+        </Button>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Asset selection and filtering */}
@@ -43,11 +80,13 @@ const Market = () => {
             <CardTitle>Ativos Disponíveis</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar ativos..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-8"
               />
             </div>
 
@@ -65,7 +104,12 @@ const Market = () => {
             </div>
 
             <div className="max-h-96 overflow-auto border rounded-md divide-y divide-secondary/60">
-              {filteredAssets.length > 0 ? (
+              {isLoading ? (
+                <div className="p-4 text-center text-muted-foreground">
+                  <Loader2 className="inline-block h-4 w-4 animate-spin mr-2" />
+                  Carregando ativos...
+                </div>
+              ) : filteredAssets.length > 0 ? (
                 filteredAssets.map((asset) => (
                   <div
                     key={asset.id}
@@ -106,8 +150,14 @@ const Market = () => {
           </CardContent>
         </Card>
 
-        {/* Asset Chart */}
-        {selectedAsset && <AssetChart asset={selectedAsset} />}
+        {/* Asset Chart and News */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Asset Chart */}
+          {selectedAsset && <AssetChart asset={selectedAsset} />}
+          
+          {/* Market News */}
+          <MarketNews />
+        </div>
       </div>
     </div>
   );

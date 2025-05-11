@@ -1,7 +1,11 @@
 
 import React, { createContext, useState, useContext, useEffect, useCallback } from "react";
 import { Asset, Position, TickerData, ChartData, TimeframeOption } from "@/types";
-import { mockAssets, mockPositions, mockTickers, updateAssetPrices, updatePositions, updateTickers, generateChartData } from "@/services/mockData";
+import { 
+  mockAssets, mockPositions, mockTickers, updateAssetPrices, 
+  updatePositions, updateTickers
+} from "@/services/mockData";
+import { fetchRealTimeQuote, fetchChartData as fetchChartDataService, fetchMarketNews } from "@/services/marketService";
 import { useAuth } from "./AuthContext";
 
 interface MarketContextType {
@@ -31,6 +35,21 @@ const timeframeOptions: TimeframeOption[] = [
   { label: "1A", value: "1y" },
 ];
 
+// Símbolos de ativos que serão atualizados com dados reais
+const REAL_DATA_SYMBOLS = [
+  "PETR4.SA", // Petrobras
+  "VALE3.SA", // Vale
+  "ITUB4.SA", // Itaú
+  "BBDC4.SA", // Bradesco
+  "ABEV3.SA", // Ambev
+  "MGLU3.SA", // Magazine Luiza
+  "BTCUSD",   // Bitcoin
+  "ETHUSD",   // Ethereum
+  "EUR=X",    // EUR/USD
+  "GBP=X",    // GBP/USD
+  "^BVSP",    // Ibovespa
+];
+
 export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { currentUser } = useAuth();
   const [assets, setAssets] = useState<Asset[]>(mockAssets);
@@ -42,29 +61,93 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateInterval, setUpdateInterval] = useState<NodeJS.Timeout | null>(null);
 
+  // Fetch real-time data for a specific asset
+  const fetchRealAsset = useCallback(async (symbol: string) => {
+    try {
+      const updatedAsset = await fetchRealTimeQuote(symbol);
+      if (updatedAsset) {
+        return updatedAsset;
+      }
+      
+      // If API call failed, use mock data as fallback
+      const mockAsset = mockAssets.find(a => a.symbol === symbol);
+      if (mockAsset) {
+        return { ...mockAsset };
+      }
+      
+      return null;
+    } catch (error) {
+      console.error(`Error fetching data for ${symbol}:`, error);
+      return null;
+    }
+  }, []);
+
   // Fetch assets
   const fetchAssets = useCallback(async () => {
     setIsUpdating(true);
     
     try {
-      // In a real app, this would be an API call
-      // For our demo, we'll use the mock data with random updates
-      const updatedAssets = updateAssetPrices();
+      // Try to get real data for configured symbols
+      const realDataPromises = REAL_DATA_SYMBOLS.map(symbol => fetchRealAsset(symbol));
+      const realAssets = await Promise.all(realDataPromises);
+      
+      // Filter out null results and combine with mock data for others
+      const validRealAssets = realAssets.filter(Boolean) as Asset[];
+      const updatedAssets = [...validRealAssets];
+      
+      // Use mock data for any assets that weren't fetched from the API
+      mockAssets.forEach(mockAsset => {
+        // Skip if we already have real data for this symbol
+        if (!updatedAssets.some(a => a.symbol === mockAsset.symbol)) {
+          // Add this mock asset with a random price update
+          const updatedMockAsset = { 
+            ...mockAsset,
+            previousPrice: mockAsset.price,
+            price: mockAsset.price * (1 + (Math.random() * 0.01 - 0.005)),
+          };
+          
+          // Update change values
+          updatedMockAsset.change = updatedMockAsset.price - (updatedMockAsset.previousPrice || updatedMockAsset.price);
+          updatedMockAsset.changePercent = updatedMockAsset.previousPrice 
+            ? (updatedMockAsset.change / updatedMockAsset.previousPrice) * 100
+            : 0;
+            
+          updatedAssets.push(updatedMockAsset);
+        }
+      });
+      
       setAssets(updatedAssets);
       
       // Update related data
       const updatedPositions = updatePositions(updatedAssets);
       setPositions(updatedPositions);
       
-      const updatedTickers = updateTickers(updatedAssets);
+      // Transform assets to tickers
+      const updatedTickers: TickerData[] = updatedAssets.map(asset => ({
+        symbol: asset.symbol,
+        price: asset.price,
+        change: asset.change,
+        changePercent: asset.changePercent
+      }));
+      
       setTickers(updatedTickers);
     } catch (error) {
       console.error("Failed to fetch assets:", error);
+      
+      // Fallback to mock data on error
+      const updatedAssets = updateAssetPrices();
+      setAssets(updatedAssets);
+      
+      const updatedPositions = updatePositions(updatedAssets);
+      setPositions(updatedPositions);
+      
+      const updatedTickers = updateTickers(updatedAssets);
+      setTickers(updatedTickers);
     } finally {
       setIsLoading(false);
       setIsUpdating(false);
     }
-  }, []);
+  }, [fetchRealAsset]);
 
   // Fetch positions
   const fetchPositions = useCallback(async () => {
@@ -92,28 +175,31 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Fetch chart data for a specific asset and timeframe
   const fetchChartData = useCallback(async (symbol: string, timeframe: string): Promise<ChartData[]> => {
-    // In a real app, this would be an API call
-    // For our demo, we'll generate random chart data based on timeframe
-    
-    let days = 1;
-    switch (timeframe) {
-      case "1d": days = 1; break;
-      case "1w": days = 7; break;
-      case "1m": days = 30; break;
-      case "3m": days = 90; break;
-      case "1y": days = 365; break;
+    try {
+      // Check if we already have cached data
+      const cacheKey = `${symbol}-${timeframe}`;
+      
+      // If this is already loading, return an empty array
+      if (chartData[cacheKey]) {
+        return chartData[cacheKey];
+      }
+      
+      // Fetch chart data from the service
+      const data = await fetchChartDataService(symbol, timeframe);
+      
+      // Cache the data
+      setChartData(prev => ({
+        ...prev,
+        [cacheKey]: data
+      }));
+      
+      return data;
+    } catch (error) {
+      console.error(`Failed to fetch chart data for ${symbol}:`, error);
+      // Return empty array on error
+      return [];
     }
-    
-    const data = generateChartData(days, 0.02);
-    
-    // Cache the data
-    setChartData(prev => ({
-      ...prev,
-      [`${symbol}-${timeframe}`]: data
-    }));
-    
-    return data;
-  }, []);
+  }, [chartData]);
 
   // Open a new position
   const openPosition = useCallback(async (positionData: Omit<Position, "id" | "openDate" | "profit" | "profitPercent" | "status" | "currentPrice">): Promise<boolean> => {
@@ -175,7 +261,7 @@ export const MarketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // Set up periodic updates
     const interval = setInterval(() => {
       fetchAssets();
-    }, 5000); // Update every 5 seconds
+    }, 60000); // Update every minute instead of 5 seconds to respect API limits
     
     setUpdateInterval(interval);
     
