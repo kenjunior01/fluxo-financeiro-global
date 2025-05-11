@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { MarketProvider } from "@/contexts/MarketContext";
 import { AppLayout } from "@/components/AppLayout";
 import Index from "./pages/Index";
+import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Market from "./pages/Market";
@@ -25,39 +26,27 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Index />} />
-              <Route 
-                path="/dashboard" 
-                element={
-                  <AppLayout>
-                    <Dashboard />
-                  </AppLayout>
-                }
-              />
-              <Route 
-                path="/market" 
-                element={
-                  <AppLayout>
-                    <Market />
-                  </AppLayout>
-                }
-              />
-              <Route 
-                path="/positions" 
-                element={
-                  <AppLayout>
-                    <Positions />
-                  </AppLayout>
-                }
-              />
-              <Route 
-                path="/automation" 
-                element={
-                  <AppLayout allowedRoles={["account_manager", "admin", "super_admin"]}>
-                    <Automation />
-                  </AppLayout>
-                }
-              />
+              <Route path="/" element={<Home />} />
+              <Route path="/dashboard" element={
+                <AppLayout>
+                  <Dashboard />
+                </AppLayout>
+              } />
+              <Route path="/market" element={
+                <AppLayout>
+                  <Market />
+                </AppLayout>
+              } />
+              <Route path="/positions" element={
+                <AppLayout>
+                  <Positions />
+                </AppLayout>
+              } />
+              <Route path="/automation" element={
+                <AppLayout allowedRoles={["account_manager", "admin", "super_admin"]}>
+                  <Automation />
+                </AppLayout>
+              } />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -1,19 +1,8 @@
 
-import { AppLayout } from "@/components/AppLayout";
-import Dashboard from "@/pages/Dashboard";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { MarketProvider } from "@/contexts/MarketContext";
+import { Navigate } from "react-router-dom";
 
 const Index = () => {
-  return (
-    <AuthProvider>
-      <MarketProvider>
-        <AppLayout>
-          <Dashboard />
-        </AppLayout>
-      </MarketProvider>
-    </AuthProvider>
-  );
+  return <Navigate to="/" replace />;
 };
 
 export default Index;
