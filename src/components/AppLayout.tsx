@@ -6,11 +6,12 @@ import { Sidebar } from "@/components/Sidebar";
 import { AppHeader } from "@/components/AppHeader";
 import { PriceTickerBar } from "@/components/PriceTickerBar";
 import { LoginForm } from "@/components/LoginForm";
+import { UserRole } from "@/types";
 
 interface AppLayoutProps {
   children: ReactNode;
   requireAuth?: boolean;
-  allowedRoles?: string[];
+  allowedRoles?: UserRole[];
 }
 
 export const AppLayout = ({
