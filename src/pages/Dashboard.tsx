@@ -7,7 +7,7 @@ import { MarketNews } from "@/components/MarketNews";
 import { TechnicalAnalysis } from "@/components/TechnicalAnalysis";
 import { AlertsManager } from "@/components/AlertsManager";
 import { useAuth } from "@/contexts/AuthContext";
-import { Activity, Bell, BookOpen, ChartBar, LineChart, Percentage, Tv2 } from "lucide-react";
+import { Activity, Bell, BookOpen, ChartBar, LineChart, Percent, Tv2 } from "lucide-react";
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
@@ -29,7 +29,7 @@ const Dashboard = () => {
                 <p className="text-2xl font-bold">R$ 156.789,42</p>
               </div>
               <div className="flex items-center gap-1 bg-primary-foreground/20 rounded-full px-2 py-1">
-                <Percentage className="h-3 w-3" />
+                <Percent className="h-3 w-3" />
                 <span className="text-xs">+4.2%</span>
               </div>
             </div>

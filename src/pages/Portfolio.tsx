@@ -4,8 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PortfolioSummary } from "@/components/PortfolioSummary";
 import { PortfolioAssetCard } from "@/components/PortfolioAssetCard";
 import { ImportTradesForm } from "@/components/ImportTradesForm";
-import { PieChart, BarChart, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, Bar } from "recharts";
-import { BarChart3, FileUp, PieChart as PieChartIcon, Activity, GlobeAmericas } from "lucide-react";
+import { 
+  PieChart, BarChart, LineChart, XAxis, YAxis, CartesianGrid, 
+  Tooltip, Legend, ResponsiveContainer, Cell, Bar, Pie, Line 
+} from "recharts";
+import { BarChart3, FileUp, PieChart as PieChartIcon, Activity, Globe } from "lucide-react";
 
 // Mock data for portfolio allocation
 const allocationData = [
@@ -40,6 +43,18 @@ const performanceData = Array(12).fill(0).map((_, index) => {
     ibovespa: 100 * (1 + 0.002 * (index + Math.random() * 4 - 2)),
   };
 });
+
+// Define the PortfolioAssetCardProps interface to match the component's props
+interface PortfolioAssetCardProps {
+  symbol: string;
+  name: string;
+  type: string;
+  currentPrice: number;
+  averagePrice: number;
+  quantity: number;
+  profit: number;
+  profitPercentage: number;
+}
 
 const Portfolio = () => {
   return (
@@ -121,10 +136,10 @@ const Portfolio = () => {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis />
-                      <Tooltip formatter={(value) => [`${value.toFixed(2)}`, '']} />
+                      <Tooltip formatter={(value) => [typeof value === 'number' ? value.toFixed(2) : value, '']} />
                       <Legend />
-                      <LineChart type="monotone" dataKey="portfolio" name="Seu Portfólio" stroke="#8884d8" activeDot={{ r: 8 }} />
-                      <LineChart type="monotone" dataKey="ibovespa" name="Ibovespa" stroke="#82ca9d" />
+                      <Line type="monotone" dataKey="portfolio" name="Seu Portfólio" stroke="#8884d8" activeDot={{ r: 8 }} />
+                      <Line type="monotone" dataKey="ibovespa" name="Ibovespa" stroke="#82ca9d" />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -169,7 +184,7 @@ const Portfolio = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <GlobeAmericas className="mr-2 h-5 w-5" />
+                  <Globe className="mr-2 h-5 w-5" />
                   Distribuição por Setor
                 </CardTitle>
                 <CardDescription>
@@ -297,7 +312,7 @@ const Portfolio = () => {
                       <XAxis dataKey="name" />
                       <YAxis />
                       <Tooltip formatter={(value, name) => [
-                        `${(value - 100).toFixed(2)}%`, 
+                        typeof value === 'number' ? `${(value - 100).toFixed(2)}%` : value, 
                         name === 'portfolio' ? 'Seu Portfólio' : 'Ibovespa'
                       ]} />
                       <Legend />
