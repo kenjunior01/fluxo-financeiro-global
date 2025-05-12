@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { DatePicker } from "@/components/ui/date-picker";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,7 +48,7 @@ const BacktestingTool = () => {
               <DatePicker
                 date={startDate}
                 setDate={setStartDate}
-                id="startDate"
+                className="w-full"
               />
             </div>
             <div>
@@ -55,7 +56,7 @@ const BacktestingTool = () => {
               <DatePicker
                 date={endDate}
                 setDate={setEndDate}
-                id="endDate"
+                className="w-full"
               />
             </div>
             <div>

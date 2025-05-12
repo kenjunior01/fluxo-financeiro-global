@@ -1,7 +1,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TradingStrategies } from "@/components/TradingStrategies";
-import { BacktestingTool } from "@/components/BacktestingTool";
+import BacktestingTool from "@/components/BacktestingTool";
 import { AlertsManager } from "@/components/AlertsManager";
 import { Brain, History, BellRing } from "lucide-react";
 
