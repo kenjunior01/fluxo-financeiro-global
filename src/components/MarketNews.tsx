@@ -1,129 +1,169 @@
 
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+// Vamos supor que este é o componente MarketNews já existente, mas adicionaremos suporte para modo estendido
+
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { fetchMarketNews } from "@/services/marketService";
 import { MarketNewsItem } from "@/types";
-import { Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Calendar, ChevronRight, TrendingDown, TrendingUp, Minus } from "lucide-react";
 
-export const MarketNews = () => {
+interface MarketNewsProps {
+  extended?: boolean;
+}
+
+export const MarketNews = ({ extended = false }: MarketNewsProps) => {
   const [news, setNews] = useState<MarketNewsItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     const loadNews = async () => {
-      setLoading(true);
+      setIsLoading(true);
       try {
         const newsData = await fetchMarketNews();
         setNews(newsData);
-        setError(null);
-      } catch (err) {
-        setError("Erro ao carregar notícias");
-        console.error("Failed to fetch news:", err);
+      } catch (error) {
+        console.error("Erro ao carregar notícias:", error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
     
     loadNews();
     
-    // Atualiza as notícias a cada 30 minutos
-    const interval = setInterval(loadNews, 30 * 60 * 1000);
-    
+    // Atualize as notícias a cada 15 minutos
+    const interval = setInterval(loadNews, 15 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
   
-  const getSentimentColor = (sentiment: string | undefined) => {
+  const getSentimentIcon = (sentiment?: 'positive' | 'negative' | 'neutral') => {
     switch (sentiment) {
-      case 'positive': return 'bg-profit/10 text-profit border-profit/20';
-      case 'negative': return 'bg-loss/10 text-loss border-loss/20';
-      default: return 'bg-secondary border-secondary/30';
+      case 'positive':
+        return <TrendingUp className="h-4 w-4 text-green-500" />;
+      case 'negative':
+        return <TrendingDown className="h-4 w-4 text-red-500" />;
+      default:
+        return <Minus className="h-4 w-4 text-gray-500" />;
+    }
+  };
+
+  const getSentimentLabel = (sentiment?: 'positive' | 'negative' | 'neutral') => {
+    switch (sentiment) {
+      case 'positive':
+        return "Positivo";
+      case 'negative':
+        return "Negativo";
+      default:
+        return "Neutro";
+    }
+  };
+
+  const getSentimentColor = (sentiment?: 'positive' | 'negative' | 'neutral') => {
+    switch (sentiment) {
+      case 'positive':
+        return "bg-green-100 text-green-800 hover:bg-green-200";
+      case 'negative':
+        return "bg-red-100 text-red-800 hover:bg-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 hover:bg-gray-200";
     }
   };
   
-  const formatPublishedDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleString('pt-BR', { 
-        day: '2-digit',
-        month: '2-digit',
-        year: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch (e) {
-      return dateString;
-    }
-  };
-  
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Notícias do Mercado</CardTitle>
-        <CardDescription>
-          Últimas notícias e atualizações do mercado financeiro
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {loading ? (
-          <div className="flex justify-center items-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : error ? (
-          <div className="text-center text-muted-foreground py-4">
-            {error}
-          </div>
-        ) : news.length === 0 ? (
-          <div className="text-center text-muted-foreground py-4">
-            Nenhuma notícia disponível no momento.
-          </div>
-        ) : (
-          news.map((item) => (
-            <div 
-              key={item.id}
-              className="flex flex-col xs:flex-row gap-3 border-b border-secondary pb-3 last:border-0 last:pb-0"
-            >
+  const displayedNews = extended ? news : news.slice(0, 5);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        {[...Array(extended ? 10 : 5)].map((_, i) => (
+          <Card key={i} className="animate-pulse">
+            <CardContent className="p-4">
+              <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+              <div className="h-4 bg-muted rounded w-1/2"></div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  if (extended) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {displayedNews.map((item) => (
+            <Card key={item.id} className="overflow-hidden flex flex-col h-full">
               {item.imageUrl && (
-                <div className="flex-shrink-0">
+                <div className="h-48 overflow-hidden">
                   <img 
                     src={item.imageUrl} 
-                    alt={item.title}
-                    className="w-20 h-14 object-cover rounded-md"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
+                    alt={item.title} 
+                    className="w-full h-full object-cover transition-transform hover:scale-105" 
                   />
                 </div>
               )}
-              
-              <div className="flex-1">
-                <h3 className="font-medium mb-1">
-                  <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
-                    {item.title}
-                  </a>
-                </h3>
-                
-                <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                  <span>{item.source}</span>
-                  <span>•</span>
-                  <span>{formatPublishedDate(item.publishedAt)}</span>
-                  
+              <CardContent className={`p-4 ${!item.imageUrl ? 'h-full' : ''} flex flex-col`}>
+                <div className="flex items-center justify-between mb-2">
+                  <Badge variant="outline" className="text-xs">
+                    {item.source}
+                  </Badge>
+                  <div className="flex items-center text-xs text-muted-foreground">
+                    <Calendar className="h-3 w-3 mr-1" />
+                    {new Date(item.publishedAt).toLocaleDateString('pt-BR')}
+                  </div>
+                </div>
+                <h3 className="font-semibold line-clamp-2 mb-2">{item.title}</h3>
+                <div className="mt-auto flex items-center justify-between pt-2">
                   {item.sentiment && (
-                    <Badge 
-                      variant="outline" 
-                      className={`ml-auto ${getSentimentColor(item.sentiment)}`}
-                    >
-                      {item.sentiment === 'positive' ? 'Positivo' : 
-                       item.sentiment === 'negative' ? 'Negativo' : 'Neutro'}
+                    <Badge className={`${getSentimentColor(item.sentiment)} flex items-center gap-1`}>
+                      {getSentimentIcon(item.sentiment)}
+                      <span>{getSentimentLabel(item.sentiment)}</span>
                     </Badge>
                   )}
+                  <Button variant="ghost" size="sm" asChild className="ml-auto">
+                    <a href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                      <span>Ler mais</span>
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </a>
+                  </Button>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Compact version for sidebar
+  return (
+    <div className="space-y-4">
+      {displayedNews.map((item) => (
+        <Card key={item.id}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-1">
+              <Badge variant="outline" className="text-xs">
+                {item.source}
+              </Badge>
+              {item.sentiment && getSentimentIcon(item.sentiment)}
             </div>
-          ))
-        )}
-      </CardContent>
-    </Card>
+            <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
+              <h3 className="text-sm font-medium line-clamp-2">{item.title}</h3>
+            </a>
+            <div className="flex items-center text-xs text-muted-foreground mt-1">
+              <Calendar className="h-3 w-3 mr-1" />
+              {new Date(item.publishedAt).toLocaleDateString('pt-BR')}
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+      
+      <Button variant="ghost" size="sm" className="w-full" asChild>
+        <a href="/market" className="flex items-center justify-center">
+          <span>Ver todas as notícias</span>
+          <ChevronRight className="h-4 w-4 ml-1" />
+        </a>
+      </Button>
+    </div>
   );
 };
