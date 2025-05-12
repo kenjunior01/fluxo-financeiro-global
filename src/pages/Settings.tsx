@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,10 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/use-toast";
 import { AlertSettings } from "@/types";
-import { AlertCircle, Bell, CreditCard, Eye, EyeOff, Key, Languages, Lock, Mail, User } from "lucide-react";
+import { AlertCircle, Bell, CreditCard, Eye, EyeOff, Key, Languages, Lock, Mail, Plus, User } from "lucide-react";
 
 const Settings = () => {
   const { currentUser } = useAuth();
