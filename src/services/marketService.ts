@@ -1,7 +1,24 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Asset, ChartData, MarketNewsItem, TickerData } from "@/types";
-import { mockAssets, mockPositions, mockTickers, updateAssetPrices, updatePositions, updateTickers } from "./mockData";
+import { 
+  mockAssets as mockAssetsData,
+  mockPositions as mockPositionsData,
+  mockTickers as mockTickersData,
+  mockNews as mockNewsData,
+  updateAssetPrices as updateAssetPricesFunc,
+  updatePositions as updatePositionsFunc,
+  updateTickers as updateTickersFunc
+} from "./mockData";
+
+// Re-export mock data with different variable names para evitar conflitos
+export const mockAssets = mockAssetsData;
+export const mockPositions = mockPositionsData;
+export const mockTickers = mockTickersData;
+export const mockNews = mockNewsData;
+export const updateAssetPrices = updateAssetPricesFunc;
+export const updatePositions = updatePositionsFunc;
+export const updateTickers = updateTickersFunc;
 
 export async function fetchRealTimeQuote(symbol: string): Promise<Asset | null> {
   try {
@@ -208,6 +225,3 @@ function mockChartData(timeframe: string): ChartData[] {
   
   return data;
 }
-
-// Re-export mock data for compatibility
-export const { mockAssets, mockPositions, mockTickers, mockNews, updateAssetPrices, updatePositions, updateTickers } = require('./mockData');
