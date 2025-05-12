@@ -14,6 +14,9 @@ import Dashboard from "./pages/Dashboard";
 import Market from "./pages/Market";
 import Positions from "./pages/Positions";
 import Automation from "./pages/Automation";
+import Portfolio from "./pages/Portfolio";
+import Settings from "./pages/Settings";
+import Clients from "./pages/Clients";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,6 +51,21 @@ const App = () => (
               <Route path="/positions" element={
                 <AppLayout>
                   <Positions />
+                </AppLayout>
+              } />
+              <Route path="/portfolio" element={
+                <AppLayout>
+                  <Portfolio />
+                </AppLayout>
+              } />
+              <Route path="/settings" element={
+                <AppLayout>
+                  <Settings />
+                </AppLayout>
+              } />
+              <Route path="/clients" element={
+                <AppLayout allowedRoles={["account_manager", "admin", "super_admin"]}>
+                  <Clients />
                 </AppLayout>
               } />
               <Route path="/automation" element={

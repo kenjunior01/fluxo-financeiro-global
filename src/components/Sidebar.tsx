@@ -12,7 +12,8 @@ import {
   Users, 
   User, 
   Database,
-  Server
+  Server,
+  Briefcase
 } from "lucide-react";
 
 interface SidebarLinkProps {
@@ -49,10 +50,10 @@ export const Sidebar = () => {
       <div className="space-y-1">
         <h2 className="text-lg font-semibold mb-2 px-4 text-primary">Menu</h2>
         <SidebarLink 
-          href="/" 
+          href="/dashboard" 
           icon={LayoutDashboard} 
           label="Dashboard" 
-          active={location.pathname === "/"} 
+          active={location.pathname === "/dashboard"} 
         />
         <SidebarLink 
           href="/market" 
@@ -65,6 +66,12 @@ export const Sidebar = () => {
           icon={BarChart3} 
           label="Posições" 
           active={location.pathname === "/positions"} 
+        />
+        <SidebarLink 
+          href="/portfolio" 
+          icon={Briefcase} 
+          label="Portfólio" 
+          active={location.pathname === "/portfolio"} 
         />
         
         {hasPermission(["account_manager", "admin", "super_admin"]) && (
