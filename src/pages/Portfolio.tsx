@@ -2,7 +2,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PortfolioSummary } from "@/components/PortfolioSummary";
-import { PortfolioAssetCard } from "@/components/PortfolioAssetCard";
+import { PortfolioAssetCard, PortfolioAssetDisplay } from "@/components/PortfolioAssetCard";
 import { ImportTradesForm } from "@/components/ImportTradesForm";
 import { 
   PieChart, BarChart, LineChart, XAxis, YAxis, CartesianGrid, 
@@ -231,7 +231,7 @@ const Portfolio = () => {
         <TabsContent value="assets">
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <PortfolioAssetCard 
+              <PortfolioAssetDisplay 
                 symbol="PETR4"
                 name="Petrobras"
                 type="stock"
@@ -241,7 +241,7 @@ const Portfolio = () => {
                 profit={770}
                 profitPercentage={17.63}
               />
-              <PortfolioAssetCard 
+              <PortfolioAssetDisplay 
                 symbol="VALE3"
                 name="Vale"
                 type="stock"
@@ -251,7 +251,7 @@ const Portfolio = () => {
                 profit={-385}
                 profitPercentage={-5.33}
               />
-              <PortfolioAssetCard 
+              <PortfolioAssetDisplay 
                 symbol="ITUB4"
                 name="Itaú Unibanco"
                 type="stock"
@@ -261,7 +261,7 @@ const Portfolio = () => {
                 profit={464}
                 profitPercentage={8.35}
               />
-              <PortfolioAssetCard 
+              <PortfolioAssetDisplay 
                 symbol="BTCUSD"
                 name="Bitcoin"
                 type="crypto"
@@ -271,7 +271,7 @@ const Portfolio = () => {
                 profit={3161.77}
                 profitPercentage={49.60}
               />
-              <PortfolioAssetCard 
+              <PortfolioAssetDisplay 
                 symbol="XPLG11"
                 name="XP Log FII"
                 type="fund"
@@ -281,7 +281,7 @@ const Portfolio = () => {
                 profit={-534}
                 profitPercentage={-4.31}
               />
-              <PortfolioAssetCard 
+              <PortfolioAssetDisplay 
                 symbol="AAPL"
                 name="Apple Inc."
                 type="stock"
