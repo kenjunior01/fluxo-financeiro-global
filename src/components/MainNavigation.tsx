@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -63,10 +62,8 @@ export function MainNavigation() {
               </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <Link to="/market" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Mercados
-                </NavigationMenuLink>
+              <Link to="/market" className={navigationMenuTriggerStyle()}>
+                Mercados
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
