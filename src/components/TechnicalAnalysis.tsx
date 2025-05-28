@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,6 +6,7 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, L
 import { useMarket } from "@/contexts/MarketContext";
 import { ChartData } from "@/types";
 import { Activity, TrendingUp } from "lucide-react";
+import { AdvancedAnalysisPanel } from './advanced-analysis/AdvancedAnalysisPanel';
 
 type IndicatorType = 'sma' | 'ema' | 'rsi' | 'macd' | 'bollinger';
 
@@ -125,128 +125,139 @@ export const TechnicalAnalysis = () => {
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center">
-          <TrendingUp className="mr-2 h-5 w-5" />
-          Análise Técnica
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <Select
-              value={selectedAsset}
-              onValueChange={setSelectedAsset}
-            >
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Selecione um ativo" />
-              </SelectTrigger>
-              <SelectContent>
-                {assets.map(asset => (
-                  <SelectItem key={asset.symbol} value={asset.symbol}>
-                    {asset.symbol}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            <div className="flex flex-wrap gap-2">
-              {indicatorOptions.map(indicator => (
-                <button
-                  key={indicator.id}
-                  onClick={() => toggleIndicator(indicator.id)}
-                  className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                    selectedIndicators.includes(indicator.id)
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-secondary text-secondary-foreground'
-                  }`}
-                  title={indicator.description}
+    <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="xl:col-span-2">
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <TrendingUp className="mr-2 h-5 w-5" />
+              Análise Técnica Avançada
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex flex-col md:flex-row gap-4">
+                <Select
+                  value={selectedAsset}
+                  onValueChange={setSelectedAsset}
                 >
-                  {indicator.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          
-          <Tabs defaultValue="price">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="price">Gráfico de Preço</TabsTrigger>
-              <TabsTrigger value="volume">Volume e Indicadores</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="price" className="pt-4">
-              <div className="h-[350px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={transformedData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="price" stroke="#8884d8" dot={false} />
-                    {selectedIndicators.includes('sma') && (
-                      <Line type="monotone" dataKey="sma" stroke="#ff7300" dot={false} />
-                    )}
-                    {selectedIndicators.includes('ema') && (
-                      <Line type="monotone" dataKey="ema" stroke="#82ca9d" dot={false} />
-                    )}
-                    {selectedIndicators.includes('bollinger') && (
-                      <>
-                        <Line type="monotone" dataKey="bollinger" stroke="#ffc658" dot={false} />
-                      </>
-                    )}
-                  </LineChart>
-                </ResponsiveContainer>
+                  <SelectTrigger className="w-full md:w-[180px]">
+                    <SelectValue placeholder="Selecione um ativo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {assets.map(asset => (
+                      <SelectItem key={asset.symbol} value={asset.symbol}>
+                        {asset.symbol}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <div className="flex flex-wrap gap-2">
+                  {indicatorOptions.map(indicator => (
+                    <button
+                      key={indicator.id}
+                      onClick={() => toggleIndicator(indicator.id)}
+                      className={`px-3 py-1 text-xs rounded-full transition-colors ${
+                        selectedIndicators.includes(indicator.id)
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-secondary text-secondary-foreground'
+                      }`}
+                      title={indicator.description}
+                    >
+                      {indicator.label}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </TabsContent>
-            
-            <TabsContent value="volume" className="pt-4">
-              <div className="h-[350px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <div className="grid grid-rows-2 h-full">
-                    <BarChart data={transformedData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="volume" fill="#8884d8" />
-                    </BarChart>
-                    
-                    <LineChart data={transformedData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      {selectedIndicators.includes('rsi') && (
-                        <Line type="monotone" dataKey="rsi" stroke="#ff4757" dot={false} />
-                      )}
-                      {selectedIndicators.includes('macd') && (
-                        <Line type="monotone" dataKey="macd" stroke="#2ed573" dot={false} />
-                      )}
-                    </LineChart>
+              
+              <Tabs defaultValue="price">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="price">Gráfico de Preço</TabsTrigger>
+                  <TabsTrigger value="volume">Volume e Indicadores</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="price" className="pt-4">
+                  <div className="h-[350px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={transformedData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip />
+                        <Legend />
+                        <Line type="monotone" dataKey="price" stroke="#8884d8" dot={false} />
+                        {selectedIndicators.includes('sma') && (
+                          <Line type="monotone" dataKey="sma" stroke="#ff7300" dot={false} />
+                        )}
+                        {selectedIndicators.includes('ema') && (
+                          <Line type="monotone" dataKey="ema" stroke="#82ca9d" dot={false} />
+                        )}
+                        {selectedIndicators.includes('bollinger') && (
+                          <>
+                            <Line type="monotone" dataKey="bollinger" stroke="#ffc658" dot={false} />
+                          </>
+                        )}
+                      </LineChart>
+                    </ResponsiveContainer>
                   </div>
-                </ResponsiveContainer>
+                </TabsContent>
+                
+                <TabsContent value="volume" className="pt-4">
+                  <div className="h-[350px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <div className="grid grid-rows-2 h-full">
+                        <BarChart data={transformedData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          <Bar dataKey="volume" fill="#8884d8" />
+                        </BarChart>
+                        
+                        <LineChart data={transformedData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          {selectedIndicators.includes('rsi') && (
+                            <Line type="monotone" dataKey="rsi" stroke="#ff4757" dot={false} />
+                          )}
+                          {selectedIndicators.includes('macd') && (
+                            <Line type="monotone" dataKey="macd" stroke="#2ed573" dot={false} />
+                          )}
+                        </LineChart>
+                      </div>
+                    </ResponsiveContainer>
+                  </div>
+                </TabsContent>
+              </Tabs>
+              
+              <div className="bg-muted p-3 rounded-md">
+                <h4 className="font-medium flex items-center mb-2">
+                  <Activity className="h-4 w-4 mr-2" />
+                  Análise Automatizada
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  {selectedAsset ? 
+                    `O ativo ${selectedAsset} apresenta tendência de alta no curto prazo, com suporte em ${(chartData[0]?.value * 0.95).toFixed(2)} e resistência em ${(chartData[0]?.value * 1.05).toFixed(2)}.` :
+                    'Selecione um ativo para ver a análise automatizada.'
+                  }
+                </p>
               </div>
-            </TabsContent>
-          </Tabs>
-          
-          <div className="bg-muted p-3 rounded-md">
-            <h4 className="font-medium flex items-center mb-2">
-              <Activity className="h-4 w-4 mr-2" />
-              Análise Automatizada
-            </h4>
-            <p className="text-sm text-muted-foreground">
-              {selectedAsset ? 
-                `O ativo ${selectedAsset} apresenta tendência de alta no curto prazo, com suporte em ${(chartData[0]?.value * 0.95).toFixed(2)} e resistência em ${(chartData[0]?.value * 1.05).toFixed(2)}.` :
-                'Selecione um ativo para ver a análise automatizada.'
-              }
-            </p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="xl:col-span-1">
+        <AdvancedAnalysisPanel
+          data={chartData}
+          symbol={selectedAsset}
+        />
+      </div>
+    </div>
   );
 };
