@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 import { TrendingUp, TrendingDown, DollarSign, Target, Calendar } from "lucide-react";
 
 interface PerformanceData {
@@ -245,10 +245,11 @@ export function PerformanceDashboard() {
                     <Tooltip 
                       formatter={(value: number) => [`${value.toFixed(1)}%`, 'Retorno']}
                     />
-                    <Bar 
-                      dataKey="returns" 
-                      fill={(entry: any) => entry.returns >= 0 ? "#10b981" : "#ef4444"}
-                    />
+                    <Bar dataKey="returns">
+                      {monthlyReturns.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.returns >= 0 ? "#10b981" : "#ef4444"} />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>

@@ -43,7 +43,7 @@ export function PriceAlerts() {
   const [newAlert, setNewAlert] = useState({
     symbol: '',
     targetPrice: '',
-    condition: 'above' as const
+    condition: 'above' as 'above' | 'below'
   });
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -147,7 +147,7 @@ export function PriceAlerts() {
                   <Label htmlFor="condition">Condição</Label>
                   <Select 
                     value={newAlert.condition} 
-                    onValueChange={(value) => setNewAlert({ ...newAlert, condition: value as 'above' | 'below' })}
+                    onValueChange={(value: 'above' | 'below') => setNewAlert({ ...newAlert, condition: value })}
                   >
                     <SelectTrigger>
                       <SelectValue />
