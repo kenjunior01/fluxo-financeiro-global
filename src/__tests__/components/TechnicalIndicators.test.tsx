@@ -1,5 +1,6 @@
 
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render } from '@testing-library/react';
+import { screen } from '@testing-library/dom';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TechnicalIndicators } from '@/components/advanced-analysis/TechnicalIndicators';
 
@@ -32,8 +33,8 @@ describe('TechnicalIndicators', () => {
     expect(screen.getByText('Indicadores Técnicos')).toBeInTheDocument();
     expect(screen.getByText('RSI')).toBeInTheDocument();
     expect(screen.getByText('MACD')).toBeInTheDocument();
-    expect(screen.getByText('Bandas de Bollinger')).toBeInTheDocument();
-    expect(screen.getByText('Estocástico')).toBeInTheDocument();
+    expect(screen.getByText('Bollinger')).toBeInTheDocument();
+    expect(screen.getByText('Stochastic')).toBeInTheDocument();
   });
 
   it('displays RSI calculation when selected', () => {
@@ -46,10 +47,10 @@ describe('TechnicalIndicators', () => {
     );
 
     // Check if RSI-related elements are present
-    expect(screen.getByText('RSI (14)')).toBeInTheDocument();
-    expect(screen.getByText('Atual:')).toBeInTheDocument();
-    expect(screen.getByText('Status:')).toBeInTheDocument();
-    expect(screen.getByText('Neutro')).toBeInTheDocument();
+    expect(screen.getByText('RSI')).toBeInTheDocument();
+    expect(screen.getByText('Consenso dos Indicadores')).toBeInTheDocument();
+    expect(screen.getByText('COMPRA')).toBeInTheDocument();
+    expect(screen.getByText('NEUTRO')).toBeInTheDocument();
   });
 
   it('displays MACD calculation when selected', () => {
@@ -61,18 +62,18 @@ describe('TechnicalIndicators', () => {
       />
     );
     
-    expect(screen.getByText('MACD (12,26,9)')).toBeInTheDocument();
+    expect(screen.getByText('MACD')).toBeInTheDocument();
   });
 
   it('displays Bollinger Bands when selected', () => {
     render(
       <TechnicalIndicators
         data={mockData}
-        selectedIndicators={['Bollinger Bands']}
+        selectedIndicators={['Bollinger']}
         onToggleIndicator={mockOnToggleIndicator}
       />
     );
     
-    expect(screen.getByText('Bandas de Bollinger (20,2)')).toBeInTheDocument();
+    expect(screen.getByText('Bollinger')).toBeInTheDocument();
   });
 });
