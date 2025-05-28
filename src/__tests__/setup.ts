@@ -1,5 +1,5 @@
 
-import { expect, afterEach } from 'vitest';
+import { expect, afterEach, beforeEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import * as matchers from '@testing-library/jest-dom/matchers';
 
@@ -13,11 +13,16 @@ afterEach(() => {
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
+  root = null;
+  rootMargin = '';
+  thresholds = [];
+  
   constructor() {}
   disconnect() {}
   observe() {}
   unobserve() {}
-};
+  takeRecords() { return []; }
+} as any;
 
 // Mock ResizeObserver
 global.ResizeObserver = class ResizeObserver {
@@ -25,7 +30,7 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() {}
   observe() {}
   unobserve() {}
-};
+} as any;
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
